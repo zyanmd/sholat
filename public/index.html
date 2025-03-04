@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Sholat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<!-- Hapus overflow-hidden dari body -->
+<body class="bg-gray-900 text-white flex flex-col min-h-screen">
+    <div class="container mx-auto px-4 py-8 flex flex-col items-center scroll-container">
+        
+        <!-- Thumbnail Countdown Ramadan -->
+        <div class="w-full max-w-lg mb-8 bg-gray-800/50 rounded-lg shadow-lg p-4 border border-gray-700">
+            <img src="https://files.catbox.moe/mqy691.jpg" 
+                alt="Ramadan Countdown" class="rounded-lg shadow-md w-full">
+            <div class="text-center mt-4">
+                <p class="text-lg md:text-xl font-semibold text-white">Ramadan Akan Datang</p>
+                
+                <div class="w-full border-b border-gray-600 my-3"></div>
+
+                <!-- Countdown Timer dengan style angka diperbaiki -->
+                <div id="countdown" class="flex justify-center gap-4 text-center">
+                    <div>
+                        <p id="days" class="text-4xl countdown-number text-blue-400">00</p>
+                        <span class="text-sm text-gray-300">Hari</span>
+                    </div>
+                    <div>
+                        <p id="hours" class="text-4xl countdown-number text-blue-400">00</p>
+                        <span class="text-sm text-gray-300">Jam</span>
+                    </div>
+                    <div>
+                        <p id="minutes" class="text-4xl countdown-number text-blue-400">00</p>
+                        <span class="text-sm text-gray-300">Menit</span>
+                    </div>
+                    <div>
+                        <p id="seconds" class="text-4xl countdown-number text-blue-400">00</p>
+                        <span class="text-sm text-gray-300">Detik</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Judul & Jam Digital -->
+        <div class="w-full max-w-lg mb-8 bg-gray-800/50 rounded-lg shadow-lg p-6 border border-gray-700 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 text-blue-400">Jadwal Sholat</h1>
+
+            <div class="w-full border-b border-gray-600 my-3"></div>
+
+            <p id="jam" class="text-2xl md:text-3xl font-semibold text-blue-300 animate-pulse mb-6"></p>
+
+            <!-- Input Kota -->
+            <div class="space-y-4 w-full">
+                <input id="kotaInput" type="text" placeholder="Masukkan Nama Kota..." 
+                    class="w-full px-6 py-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all">
+                
+                <button onclick="getJadwal()" 
+                    class="w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-lg transform transition-all duration-200 hover:scale-105">
+                    Cari
+                </button>
+            </div>
+        </div>
+
+        <!-- Box Jadwal Sholat -->
+        <div id="jadwal" class="mt-8 w-full max-w-2xl hidden">
+            <div class="bg-gray-800/50 rounded-xl p-6 backdrop-blur-md shadow-lg">
+                <p class="text-2xl font-bold text-blue-300 mb-2" id="namaKota"></p>
+                <p class="text-sm text-gray-400 mb-6" id="tanggal"></p>
+                
+                <div class="overflow-x-auto rounded-lg">
+                    <table class="min-w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-700/50">
+                                <th class="px-6 py-4 text-sm font-semibold">Subuh</th>
+                                <th class="px-6 py-4 text-sm font-semibold">Duha</th>
+                                <th class="px-6 py-4 text-sm font-semibold">Dzuhur</th>
+                                <th class="px-6 py-4 text-sm font-semibold">Ashar</th>
+                                <th class="px-6 py-4 text-sm font-semibold">Maghrib</th>
+                                <th class="px-6 py-4 text-sm font-semibold">Isya</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-gray-800/30">
+                                <td id="subuh" class="px-6 py-4 text-lg font-medium">-</td>
+                                <td id="duha" class="px-6 py-4 text-lg font-medium">-</td>
+                                <td id="dzuhur" class="px-6 py-4 text-lg font-medium">-</td>
+                                <td id="ashar" class="px-6 py-4 text-lg font-medium">-</td>
+                                <td id="maghrib" class="px-6 py-4 text-lg font-medium">-</td>
+                                <td id="isya" class="px-6 py-4 text-lg font-medium">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800/50 text-center py-4 text-sm text-gray-400 mt-auto">
+        © 2024 Jadwal Sholat - Dibuat dengan ❤️
+    </footer>
+
+    <!-- Script tetap sama -->
+    <script>
+        function updateJam() {
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat('id-ID', {
+                timeZone: 'Asia/Jakarta',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            document.getElementById("jam").innerText = `Jam: ${formatter.format(now)} WIB`;
+        }
+
+        setInterval(updateJam, 1000);
+        updateJam();
+
+        function updateCountdown() {
+            const targetDate = new Date('2095-03-01T00:00:00+07:00');
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerText = days.toString().padStart(2, '0');
+                document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+                document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+                document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+            } else {
+                document.getElementById("countdown").innerHTML = `<p class="text-2xl font-bold text-green-400">Ramadan Telah Tiba!</p>`;
+            }
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        async function getJadwal() {
+            const kota = document.getElementById('kotaInput').value.trim();
+            if (!kota) return alert("Masukkan nama kota terlebih dahulu!");
+
+            const formattedKota = kota.toLowerCase().replace(/\s+/g, '-');
+
+            const res = await fetch(`/jadwal/${formattedKota}`);
+            const data = await res.json();
+
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById("namaKota").innerText = `Jadwal Sholat di ${kota}`;
+                document.getElementById("tanggal").innerText = `Tanggal: ${data.tanggal}`;
+                document.getElementById("subuh").innerText = data.subuh;
+                document.getElementById("duha").innerText = data.duha;
+                document.getElementById("dzuhur").innerText = data.dzuhur;
+                document.getElementById("ashar").innerText = data.ashar;
+                document.getElementById("maghrib").innerText = data.maghrib;
+                document.getElementById("isya").innerText = data.isya;
+                document.getElementById("jadwal").classList.remove("hidden");
+            }
+        }
+    </script>
+</body>
+</html>
